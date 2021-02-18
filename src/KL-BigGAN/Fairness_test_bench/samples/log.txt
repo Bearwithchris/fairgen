@@ -1,0 +1,27 @@
+Running: ./samples/0.1_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.5266531306277406, l1:0.7447999999999999, kl:0.31134837405330046 
+FID: 12.842689172557925
+Running: ./samples/0.2_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.39484842661456815, l1:0.5584, kl:0.16522854921220861 
+FID: 7.744872399492522
+Running: ./samples/0.3_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.25809397513308985, l1:0.365, kl:0.06817653361630105 
+FID: 4.677162076649012
+Running: ./samples/0.4_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.12614784976368004, l1:0.17839999999999995, kl:0.015998784122086607 
+FID: 2.858421046505782
+Running: ./samples/0.5_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.0007071067811865089, l1:0.0009999999999999454, kl:5.000000832413145e-07 
+FID: 2.9473312679328956e-11
+Running: ./samples/0.6_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.13901719318127528, l1:0.19660000000000005, kl:0.019452240871142293 
+FID: 2.9232356728478237
+Running: ./samples/0.7_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.2706804758382104, l1:0.38280000000000003, kl:0.07517126854479053 
+FID: 4.841291345220952
+Running: ./samples/0.8_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.4024851798513828, l1:0.5691999999999999, kl:0.17212325159920885 
+FID: 8.127512197091136
+Running: ./samples/0.9_fid_real_samples_0.npz
+fair_disc for iter 0 is: l2:0.5362697828518777, l1:0.7584, kl:0.3246312696625052 
+FID: 12.938359671984472

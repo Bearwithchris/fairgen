@@ -1274,14 +1274,69 @@ def accumulate_standing_stats(net, z, y, nclasses, num_accumulations=16):
     net.eval()
 
 
+# def fairness_discrepancy(data, n_classes):
+#     """
+#     computes fairness discrepancy metric for single or multi-attribute
+#     this metric computes L2, L1, AND KL-total variation distance
+#     """
+#     unique, freq = np.unique(data, return_counts=True)
+#     props = freq / len(data) #Proportion of data that belongs to that data
+#     truth = 1./n_classes
+
+#     # L2 and L1
+#     l2_fair_d = np.sqrt(((props - truth)**2).sum())
+#     l1_fair_d = abs(props - truth).sum()
+
+#     # q = props, p = truth
+#     kl_fair_d = (props * (np.log(props) - np.log(truth))).sum()
+    
+#     return l2_fair_d, l1_fair_d, kl_fair_d
+
+# #New addition to experiment with new loss functions
+# def fairness_discrepancy_exp(data, n_classes):
+#     """
+#     Changes
+#     >Data is continous instead of discrete i.e. [[0.xx,0.xx]....[0.xx,0.xx]] 
+#     """
+#     mean_class_val,__=np.mean(data,0) #Maximum output per classification task
+#     truth=1./n_classes
+    
+#     l2_fair_d = np.sqrt(((mean_class_val - truth)**2)).sum()
+#     l1_fair_d = abs(mean_class_val - truth).sum()
+#     kl_fair_d = (mean_class_val * (np.log(mean_class_val) - np.log(truth))).sum()
+    
+    
+#     return l2_fair_d,l1_fair_d,kl_fair_d
+
+# calculate cross entropy Per sample
+def cross_entropy(p, q,n_classes):
+    
+    #2D
+    try:
+        ce_array=np.array([])
+        for j in range(len(p)):
+            ce=-sum([p[j][i]*np.log(q[j][i]) for i in range(len(q[j]))])
+            ce_array=np.append(ce_array,ce)
+            ce_out=np.mean(ce_array) 
+    #1D
+    except:
+        ce=-sum([p[i]*np.log(q[i]) for i in range(n_classes)])
+        ce_array=np.append(ce_array,ce)
+        ce_out=np.mean(ce_array)    
+    # print (ce_array)
+    # time.sleep(100)
+    return ce_out
+    
+
 def fairness_discrepancy(data, n_classes):
     """
     computes fairness discrepancy metric for single or multi-attribute
     this metric computes L2, L1, AND KL-total variation distance
     """
     unique, freq = np.unique(data, return_counts=True)
-    props = freq / len(data)
+    props = freq / len(data) #Proportion of data that belongs to that data
     truth = 1./n_classes
+
 
     # L2 and L1
     l2_fair_d = np.sqrt(((props - truth)**2).sum())
@@ -1289,9 +1344,37 @@ def fairness_discrepancy(data, n_classes):
 
     # q = props, p = truth
     kl_fair_d = (props * (np.log(props) - np.log(truth))).sum()
+
+    #Cross entropy
+    p=np.ones(n_classes)/n_classes    
+    ce=cross_entropy(p,props,n_classes)-cross_entropy(p,p,n_classes)
     
     return l2_fair_d, l1_fair_d, kl_fair_d
 
+#New addition to experiment with new loss functions
+def fairness_discrepancy_exp(data, n_classes):
+    """
+    Changes
+    >Data is continous instead of discrete i.e. [[0.xx,0.xx]....[0.xx,0.xx]] 
+    """
+    # print (data)
+    # time.sleep(100)
+    
+
+    #Cross entropy data
+    p=np.ones(n_classes)/n_classes
+    q=(np.mean(data,0))
+    
+    mean_class_val,__=np.mean(data,0) #Maximum output per class
+    truth=1./n_classes
+    
+    l2_fair_d = np.sqrt(((mean_class_val - truth)**2)).sum()
+    l1_fair_d = abs(mean_class_val - truth).sum()
+    kl_fair_d = (mean_class_val * (np.log(mean_class_val) - np.log(truth))).sum()
+    ce=cross_entropy(p,q,n_classes)-cross_entropy(p,p,n_classes)
+    
+    
+    return l2_fair_d,l1_fair_d,kl_fair_d,ce
 
 # This version of Adam keeps an fp32 copy of the parameters and
 # does all of the parameter updates in fp32, while still doing the

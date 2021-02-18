@@ -72,18 +72,21 @@ if __name__ == "__main__":
 		balanced_valid_dataset, unbalanced_valid_dataset = build_90_10_unbalanced_datasets_clf_celeba(
 			args.dataset_name, 'val', args.perc)
 		bias = '90_10_perc{}'.format(args.perc)
+        
 	elif args.bias == '80_20':
 		balanced_train_dataset, unbalanced_train_dataset = build_80_20_unbalanced_datasets_clf_celeba(
 			args.dataset_name, 'train', args.perc)
 		balanced_valid_dataset, unbalanced_valid_dataset = build_80_20_unbalanced_datasets_clf_celeba(
 			args.dataset_name, 'val', args.perc)
 		bias = '80_20_perc{}'.format(args.perc)
+        
 	elif args.bias == 'multi':
 		balanced_train_dataset, unbalanced_train_dataset = build_multi_datasets_clf_celeba(
 			args.dataset_name, 'train', args.perc)
 		balanced_valid_dataset, unbalanced_valid_dataset = build_multi_datasets_clf_celeba(
 			args.dataset_name, 'val', args.perc)
 		bias = 'multi_perc{}'.format(args.perc)
+        
 	else:
 		raise NotImplementedError
 
@@ -95,14 +98,13 @@ if __name__ == "__main__":
 
 	# for training the classifier
 	train_dataset = BagOfDatasets([balanced_train_dataset, unbalanced_train_dataset])
-	train_loader = torch.utils.data.DataLoader(
-	    train_dataset, batch_size=100, shuffle=True)
+	train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=100, shuffle=True)
 
 	# adjust size of unbalanced validation set to check calibration
 	if args.perc != 1.0:
 		print('shrinking the size of the unbalanced dataset to assess classifier calibration!')
 		to_shrink = len(balanced_valid_dataset)
-		# shrink validation set according to the right proportions!
+		# shrink validation set according to the right proportions! (Data/gender/label)
 		d, g, l = unbalanced_valid_dataset.dataset.tensors
 		if '90' in args.bias or '80' in args.bias:
 			females = torch.where(g==0)[0]
@@ -170,12 +172,9 @@ if __name__ == "__main__":
 		for batch_idx, data_list in enumerate(train_loader):
 			# concatenate data and labels from both balanced + unbalanced, and make sure that each minibatch is balanced
 			n_unbalanced = len(data_list[0][1])
-			data = torch.cat(
-				(data_list[0][0][0:n_unbalanced], data_list[0][1])).to(device)
-			attr = torch.cat(
-				(data_list[1][0][0:n_unbalanced], data_list[1][1])).to(device)
-			target = torch.cat(
-				(data_list[2][0][0:n_unbalanced], data_list[2][1])).to(device)
+			data = torch.cat((data_list[0][0][0:n_unbalanced], data_list[0][1])).to(device)
+			attr = torch.cat((data_list[1][0][0:n_unbalanced], data_list[1][1])).to(device)
+			target = torch.cat((data_list[2][0][0:n_unbalanced], data_list[2][1])).to(device)
 
 			# random permutation of data
 			idx = torch.randperm(len(data))
@@ -183,7 +182,7 @@ if __name__ == "__main__":
 			target = target[idx]
 			attr = attr[idx]
 
-			# minor adjustments
+			# minor adjustments (normalised)
 			data = data.float() / 255.
 			target = target.long()
 

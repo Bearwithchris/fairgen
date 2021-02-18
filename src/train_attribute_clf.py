@@ -46,6 +46,7 @@ if __name__ == "__main__":
 
 	device = torch.device('cuda' if args.cuda else 'cpu')
 
+    #Create output folder
 	if not os.path.isdir(args.out_dir):
 	    os.makedirs(args.out_dir)
 
@@ -59,6 +60,7 @@ if __name__ == "__main__":
 			'test', args.class_idx)
 		n_classes = 2
 	else:
+        #(Dataset are already in torch.utils.data format)
 		train_dataset = build_multi_celeba_classification_datset('train')
 		valid_dataset = build_multi_celeba_classification_datset('val')
 		test_dataset = build_multi_celeba_classification_datset('test')
@@ -68,25 +70,27 @@ if __name__ == "__main__":
 	print(len(train_dataset))
 	print(len(valid_dataset))
 
-	# train/validation split
-	train_loader = torch.utils.data.DataLoader(
-	    train_dataset, batch_size=args.batch_size, shuffle=True)
-	valid_loader = torch.utils.data.DataLoader(
-	    valid_dataset, batch_size=args.batch_size, shuffle=False)
-	test_loader = torch.utils.data.DataLoader(
-		test_dataset, batch_size=100, shuffle=False)
+	# train/validation split (Shuffle and batch the datasets)
+	train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+	valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False)
+	test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=100, shuffle=False)
 
 	# build model
 	model_cls = build_model(args.model_name)
 	model = model_cls(block=BasicBlock, layers=[2, 2, 2, 2], num_classes=n_classes, grayscale=False)
 	optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    
+    #Pass model to cuda
 	model.to(device)
 
 
 	def train(epoch):
 	    model.train()
 	    for batch_idx, (data, target) in enumerate(train_loader):
+            #Pass data to cuda
 	        data, target = data.to(device), target.to(device)
+            
+            #Normalise data
 	        data = data.float() / 255.
 	        target = target.long()
 	        
@@ -130,6 +134,7 @@ if __name__ == "__main__":
 	# classifier has finished training, evaluate sample diversity
 	best_loss = sys.maxsize
 
+    #Training Loop
 	print('beginning training...')
 	for epoch in range(1, args.epochs + 1):
 		train(epoch)
@@ -150,6 +155,7 @@ if __name__ == "__main__":
 
 	# finished training, want to test on final test set
 	print('finished training...testing on final test set with epoch {} ckpt'.format(best_idx))
+    
 	# reload best model
 	model_cls = build_model('celeba')
 	model = model_cls(block=BasicBlock, layers=[2, 2, 2, 2], num_classes=n_classes, grayscale=False)

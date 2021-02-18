@@ -127,3 +127,26 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+*.npz
+*.pt
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.100000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.150000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.200000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.250000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.300000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.350000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.400000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.450000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.500000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.550000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.600000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.650000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.700000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.750000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.800000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.850000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.900000_samples_10000
+src/KL-BigGAN/Fairness_test_bench/toy_data/test_fairness_data_0.950000_samples_10000
+*.jpg
+*.pth
+*.tar

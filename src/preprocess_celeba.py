@@ -40,16 +40,19 @@ ATTR_PATH = 'attributes.pt'
 
 def preprocess_images(args):
     # automatically save outputs to "data" directory
-    IMG_PATH = os.path.join(args.out_dir, '{1}_celeba_{0}x{0}.pt'.format(
-        IMG_SIZE, args.partition))
+    IMG_PATH = os.path.join(args.out_dir, '{1}_celeba_{0}x{0}.pt'.format(IMG_SIZE, args.partition))
     LABEL_PATH = os.path.join(args.out_dir, '{1}_labels_celeba_{0}x{0}.pt'.format(IMG_SIZE, args.partition))
 
     print('preprocessing partition {}'.format(args.partition))
+    
+    #1) Transform - Crop and resize the image:
     # NOTE: datasets have not yet been normalized to lie in [-1, +1]!
-    transform = transforms.Compose(
-        [transforms.CenterCrop(140),
-        transforms.Resize(IMG_SIZE)])
+    transform = transforms.Compose([transforms.CenterCrop(140),transforms.Resize(IMG_SIZE)])
+    
+    #Split out the evaluation path
     eval_data = load_eval_partition(args.partition, args.data_dir)
+    
+    #2) Process Attribute data
     attr_data = load_attributes(eval_data, args.partition, args.data_dir)
 
     if os.path.exists(IMG_PATH):
@@ -58,21 +61,21 @@ def preprocess_images(args):
 
     N_IMAGES = len(eval_data)
     data = np.zeros((N_IMAGES, 3, IMG_SIZE, IMG_SIZE), dtype='uint8')
-    labels = np.zeros((N_IMAGES, 40))
+    labels = np.zeros((N_IMAGES, 40)) #Start from fresh Matrix for attribute addition
 
     print('starting conversion...')
-    for i in tqdm.tqdm(range(N_IMAGES)):
-        os.path.join(
-            args.data_dir, 'img_align_celeba/', '{}'.format(eval_data[i]))
-        with Image.open(os.path.join(args.data_dir, 'img_align_celeba/', 
+    for i in tqdm.tqdm(range(N_IMAGES)): #Loading screen loop
+        os.path.join(args.data_dir, 'img_align_celeba/', '{}'.format(eval_data[i])) #Open Image file
+        with Image.open(os.path.join(args.data_dir, 'img_align_celeba/',  
             '{}'.format(eval_data[i]))) as img:
             if transform is not None:
-                img = transform(img)
-        img = np.array(img)
-        data[i] = img.transpose((2, 0, 1))
-        labels[i] = attr_data[i]
-
-    data = torch.from_numpy(data)
+                img = transform(img) #Transform the image
+        img = np.array(img) #Image as numpy 
+        data[i] = img.transpose((2, 0, 1)) #Rearrange to standard format
+        labels[i] = attr_data[i] #Assign respective label according to the attribute
+        
+    #Convert to torch format
+    data = torch.from_numpy(data) 
     labels = torch.from_numpy(labels)
 
     print("Saving images to {}".format(IMG_PATH))

@@ -138,7 +138,7 @@ def build_90_10_unbalanced_datasets_clf_celeba(dataset_name, split, perc=1.0):
 	data = torch.load(BASE_PATH + '{}_celeba_64x64.pt'.format(split))
 	labels = torch.load(BASE_PATH + '{}_labels_celeba_64x64.pt'.format(split))
 
-	# get appropriate gender splits
+	# get appropriate gender splits (Index 20 is male==1)
 	females = np.where(labels[:, 20]==0)[0]
 	males = np.where(labels[:, 20]==1)[0]
 
@@ -158,12 +158,14 @@ def build_90_10_unbalanced_datasets_clf_celeba(dataset_name, split, perc=1.0):
 	    print('cutting down balanced dataset to {} its original size'.format(perc))
 	to_stop = int((n_balanced // 2) * perc)
 	balanced_indices = np.hstack((males[0:to_stop], females[0:to_stop]))
+    #Output data
 	balanced_dataset = data[balanced_indices]
 	balanced_labels = labels[balanced_indices][:,20]
 	print('balanced dataset ratio: {}'.format(np.unique(balanced_labels.numpy(), return_counts=True)))
 
 	# construct biased dataset
 	unbalanced_indices = np.hstack((females[(n_balanced//2):], males[(n_balanced//2):]))
+    #Output data
 	unbalanced_dataset = data[unbalanced_indices]
 	unbalanced_labels = labels[unbalanced_indices][:, 20]
 	print('unbalanced dataset ratio: {}'.format(np.unique(unbalanced_labels.numpy(), return_counts=True)))
@@ -172,9 +174,8 @@ def build_90_10_unbalanced_datasets_clf_celeba(dataset_name, split, perc=1.0):
 	data_balanced_labels = torch.ones_like(balanced_labels)  # y = 1 for balanced
 	data_unbalanced_labels = torch.zeros_like(unbalanced_labels)  # y = 0 for unbalanced
 
-	# construct dataloaders
-	balanced_train_dataset = torch.utils.data.TensorDataset(
-		balanced_dataset, balanced_labels, data_balanced_labels)
+	# construct dataloaders (Data,M/F,1/0)
+	balanced_train_dataset = torch.utils.data.TensorDataset(balanced_dataset, balanced_labels, data_balanced_labels)
 	unbalanced_train_dataset = torch.utils.data.TensorDataset(unbalanced_dataset, unbalanced_labels, data_unbalanced_labels)
 	
 	# make sure things don't go out of bounds during trainin
