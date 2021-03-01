@@ -122,7 +122,7 @@ def run(config):
     k=0
     
 
-    npz_filename = '%s/%s_fid_real_samples_%s.npz' % ("./samples", perc_bias, k) #E.g. perc_fid_samples_0
+    npz_filename = '%s/%s_fid_real_samples_ref_%s.npz' % ("./samples", perc_bias, k) #E.g. perc_fid_samples_0
     if os.path.exists(npz_filename):
         print('samples already exist, skipping...')
         #pass
@@ -140,82 +140,82 @@ def run(config):
                 
    
 
-    #=====Classify===================================================================
-    metrics = {'l2': 0, 'l1': 0, 'kl': 0}
-    l2_db = np.zeros(10)
-    l1_db = np.zeros(10)
-    kl_db = np.zeros(10)
-
-    # output file
-    fname = '%s/%s_fair_disc_fid_samples.p' % (config['samples_root'], perc_bias)
-
-    # load classifier 
-    #(Saved state)
-    if not config['multi']:
-        print('Pre-loading pre-trained single-attribute classifier...')
-        clf_state_dict = torch.load(CLF_PATH)['state_dict']
-        clf_classes = 2
-    else:
-        # multi-attribute
-        print('Pre-loading pre-trained multi-attribute classifier...')
-        clf_state_dict = torch.load(MULTI_CLF_PATH)['state_dict']
-        clf_classes = 4
-        
-    # load attribute classifier here
-    #(Model itself)
-    clf = ResNet18(block=BasicBlock, layers=[2, 2, 2, 2], num_classes=clf_classes, grayscale=False) 
-    clf.load_state_dict(clf_state_dict)
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    clf = clf.to(device)
-    clf.eval()  # turn off batch norm
-
-    # classify examples and get probabilties
-    n_classes = 2
-    if config['multi']:
-        n_classes = 4
-
-    # number of classes
-    probs_db = np.zeros((1, 10000, n_classes)) #Numper of runs , images per run ,Number of classes
-    for i in range(1):
-        # grab appropriate samples
-        npz_filename = '%s/%s_fid_real_samples_%s.npz' % ("./samples", perc_bias, k) #E.g. perc_fid_samples_0
-        preds, probs = classify_examples(clf, npz_filename) #Classify the data
-        l2, l1, kl = utils.fairness_discrepancy(preds, clf_classes) #Pass to calculate score
-        
-        #exp
-        l2Exp, l1Exp, klExp = utils.fairness_discrepancy_exp(probs, clf_classes) #Pass to calculate score
-
-        # save metrics (To add on new mertrics add here)
-        l2_db[i] = l2
-        l1_db[i] = l1
-        kl_db[i] = kl
-        probs_db[i] = probs
-        
-        #Write log
-        f.write("Running: "+npz_filename+"\n")
-        f.write('fair_disc for iter {} is: l2:{}, l1:{}, kl:{} \n'.format(i, l2, l1, kl))
-        
-        
-        print('fair_disc for iter {} is: l2:{}, l1:{}, kl:{}'.format(i, l2, l1, kl))
-        print('fair_disc_exp for iter {} is: l2:{}, l1:{}, kl:{} \n'.format(i, l2Exp, l1Exp, klExp))
-        
-        #FID score 50_50 vs others 
-        data_moments=os.path.join("./samples","0.5_fid_real_samples_ref_0.npz")
-        sample_moments=os.path.join("./samples",'%s_fid_real_samples_%s.npz'%(perc_bias,k))
-        FID = fid_score_mod.calculate_fid_given_paths([data_moments, sample_moments], batch_size=100, cuda=True, dims=2048)
-        print ("FID: "+str(FID))
-        f.write("FID: "+str(FID)+"\n")      
-        f.close()
-    metrics['l2'] = l2_db
-    metrics['l1'] = l1_db
-    metrics['kl'] = kl_db
-    print('fairness discrepancies saved in {}'.format(fname))
-    print(l2_db)
-    
-    # save all metrics
-    with open(fname, 'wb') as fp:
-        pickle.dump(metrics, fp)
-    np.save(os.path.join(config['samples_root'], 'clf_probs.npy'), probs_db)
+#    #=====Classify===================================================================
+#    metrics = {'l2': 0, 'l1': 0, 'kl': 0}
+#    l2_db = np.zeros(10)
+#    l1_db = np.zeros(10)
+#    kl_db = np.zeros(10)
+#
+#    # output file
+#    fname = '%s/%s_fair_disc_fid_samples.p' % (config['samples_root'], perc_bias)
+#
+#    # load classifier 
+#    #(Saved state)
+#    if not config['multi']:
+#        print('Pre-loading pre-trained single-attribute classifier...')
+#        clf_state_dict = torch.load(CLF_PATH)['state_dict']
+#        clf_classes = 2
+#    else:
+#        # multi-attribute
+#        print('Pre-loading pre-trained multi-attribute classifier...')
+#        clf_state_dict = torch.load(MULTI_CLF_PATH)['state_dict']
+#        clf_classes = 4
+#        
+#    # load attribute classifier here
+#    #(Model itself)
+#    clf = ResNet18(block=BasicBlock, layers=[2, 2, 2, 2], num_classes=clf_classes, grayscale=False) 
+#    clf.load_state_dict(clf_state_dict)
+#    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+#    clf = clf.to(device)
+#    clf.eval()  # turn off batch norm
+#
+#    # classify examples and get probabilties
+#    n_classes = 2
+#    if config['multi']:
+#        n_classes = 4
+#
+#    # number of classes
+#    probs_db = np.zeros((1, 10000, n_classes)) #Numper of runs , images per run ,Number of classes
+#    for i in range(1):
+#        # grab appropriate samples
+#        npz_filename = '%s/%s_fid_real_samples_%s.npz' % ("./samples", perc_bias, k) #E.g. perc_fid_samples_0
+#        preds, probs = classify_examples(clf, npz_filename) #Classify the data
+#        l2, l1, kl = utils.fairness_discrepancy(preds, clf_classes) #Pass to calculate score
+#        
+#        #exp
+#        l2Exp, l1Exp, klExp = utils.fairness_discrepancy_exp(probs, clf_classes) #Pass to calculate score
+#
+#        # save metrics (To add on new mertrics add here)
+#        l2_db[i] = l2
+#        l1_db[i] = l1
+#        kl_db[i] = kl
+#        probs_db[i] = probs
+#        
+#        #Write log
+#        f.write("Running: "+npz_filename+"\n")
+#        f.write('fair_disc for iter {} is: l2:{}, l1:{}, kl:{} \n'.format(i, l2, l1, kl))
+#        
+#        
+#        print('fair_disc for iter {} is: l2:{}, l1:{}, kl:{}'.format(i, l2, l1, kl))
+#        print('fair_disc_exp for iter {} is: l2:{}, l1:{}, kl:{} \n'.format(i, l2Exp, l1Exp, klExp))
+#        
+#        #FID score 50_50 vs others 
+#        data_moments=os.path.join("./samples","0.5_fid_real_samples_0.npz")
+#        sample_moments=os.path.join("./samples",'%s_fid_real_samples_%s.npz'%(perc_bias,k))
+#        FID = fid_score_mod.calculate_fid_given_paths([data_moments, sample_moments], batch_size=100, cuda=True, dims=2048)
+#        print ("FID: "+str(FID))
+#        f.write("FID: "+str(FID)+"\n")      
+#        f.close()
+#    metrics['l2'] = l2_db
+#    metrics['l1'] = l1_db
+#    metrics['kl'] = kl_db
+#    print('fairness discrepancies saved in {}'.format(fname))
+#    print(l2_db)
+#    
+#    # save all metrics
+#    with open(fname, 'wb') as fp:
+#        pickle.dump(metrics, fp)
+#    np.save(os.path.join(config['samples_root'], 'clf_probs.npy'), probs_db)
 
 
 def main():

@@ -426,7 +426,13 @@ def add_sample_parser(parser):
     parser.add_argument(
         '--sample_inception_metrics', action='store_true', default=False,
         help='Calculate Inception metrics with sample.py? (default: %(default)s)')
-    return parser
+
+def add_sample_parser_exp(parser):  
+    #Additional Argument for data
+    parser.add_argument(
+    '--sampleC', type=int, default=10000,
+    help='Defines the number of samples being input')
+
 
 
 # Convenience dicts
