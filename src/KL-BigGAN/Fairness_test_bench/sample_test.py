@@ -91,7 +91,8 @@ def run(config):
     config['skip_init'] = True
     config['no_optim'] = True
     device = 'cuda'
-    config['sample_num_npz'] = 10000
+    # config['sample_num_npz'] = 10000
+    config['sample_num_npz'] = 1000
     perc_bias=float(config["bias"].split("_")[0])/100
     print(config['ema_start'])
 

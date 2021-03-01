@@ -287,9 +287,9 @@ def sample_n_plot(samples=100,class_num=2,perc_minority=0.5):
     plot_samples(bias_list,num_class=class_num)
     
 
-num_class=4
+num_class=10
 samples=200
-data_instances=2500
+data_instances=10000
 split_bias_ref_dataset(num_class=num_class,samples=samples,data_instances=data_instances)
 bias_list,label_list=split_bias_dataset(num_class=num_class,samples=samples,data_instances=data_instances)
-# sample_n_plot(samples=100,class_num=4,perc_minority=0.25)
+# sample_n_plot(samples=samples,class_num=num_class,perc_minority=1.0/num_class)

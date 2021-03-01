@@ -66,4 +66,4 @@ def test_gen(perc_f=0.5,sample_size=10000):
 
 if __name__=='__main__':
     for i in np.arange (0.1,1,0.1):
-        test_gen(i) #0.5 Female
+        test_gen(i,10000) #0.5 Female
